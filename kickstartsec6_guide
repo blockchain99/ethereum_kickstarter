@@ -1,0 +1,290 @@
+1.
+mkdir kickstartSec6
+cd kickstartSec6
+~/ethereum2/EthereumCasts-master/kickstartSec6$ npm init   (type enter several times until see packsge.json)
+
+#install package:
+~/ethereum2/EthereumCasts-master/kickstartSec6$ npm install --save ganache-cli mocha solc fs-extra web3@1.0.0-beta.26
+
+2. from inbox_lottery directory, consists of /contracts /test dir
+copy from compile.js in inbox_lottery, in which
+module.exports = solc.compile(source, 1).contracts[':Lottery'];
+//every time We start the project(run some code, test..), must recompile entire contract.
+-> comile once(comile.js) and access compiled version :
+
+3.
+- compile.js edit
+- move to subdir ethereum :(~/ethereum2/EthereumCasts-master/kickstartSec6/ethereum$ )
+~/ethereum2/EthereumCasts-master/kickstartSec6/ethereum$ node compile.js
+
+- In package.json , change to "test": "mocha"
+- Campaign.test.js edit:
+- ~/ethereum2/EthereumCasts-master/kickstartSec6$ npm run test
+
+4. deploy.js
+- before deploy.js , install truffle-hdwallet-provider
+~/ethereum2/EthereumCasts-master/kickstartSec6$ npm install --save truffle-hdwallet-provider
+# after edit deploy.js
+~/ethereum2/EthereumCasts-master/kickstartSec6$ cd ethereum
+~/ethereum2/EthereumCasts-master/kickstartSec6/ethereum$ node deploy.js
+# Attempting to deploy from account 0x2ba34C3BFE07fAE9572A5f93279E301EBC626B05
+#Contract deployed to 0x45DB72f8827A7caB9C1827caab239b90aa06A706 -- CamapaignFactory
+#Contract address
+#succeed !!
+5. make ADDRESS file with 0x45DB72f8827A7caB9C1827caab239b90aa06A706
+6. 1. kickstarter.com
+#########  Already I excuted following , so No need to excute following line
+( Can make ref file in ethereum2 dir)
+-> In ~/ethereum2 $ sudo npm install -g create-react-app #this is for creating
+   new react app
+- succeed !! ########
+
+~/ethereum2/Ethereum../kickstartSec6$ npm install --save next@4.1.4 react react-dom
+#.next dir: automatically create folder, manage all the contents inside it.(control app)
+7. edit show.js, newcampaign.js
+8. in package.json - add "dev": "next dev" as follow.
+"script" : {
+   "dev": "next dev"
+}
+#then(run server module)
+ ~/ethereum2/Ethereum../kickstartSec6$ npm run dev
+9. localhost:3000 - 404 not found
+localhost:3000/show, localhost:3000/newcampaign- works!
+10. rename newcampaign.js to index.js , which
+enable localhost:3000 works!
+# make sure next server is running,
+#if not , $ npm run dev
+11. we3.js -
+import Web3 from 'web3';
+const web3 = new Web3(window.web3.currentProvider);
+12 remix open with Campaign.sol
+-Run/injected web3 with Rinkeby testnet(4)
+-Choose CamapaignFactory
+-click getDeployedCampaigns -> show 0
+-click createCampaign with 100 input ->
+ activate MetaMask : click Submit
+13. index.js
+
+14 web3.js
+--- check running code on browser or server
+1)localhost:3000 ,in devtool, console:
+> typeof window
+# return 'object'
+2)~/../kickstartsec6$ typeof window
+#return 'undefined'
+
+15. index.js
+#class CampaignIndex extends Compoment {
+ static async getInitialProps() {
+  const campaigns = await factory.methods.getDeployedCampaigns().call();
+  return {campaigns};
+ }
+  renter() {
+   return <div>{this.props.campaigns[0]}</div>;
+  }
+}
+
+16. semantic-ui-react : makes look awesome
+#ctrl+c for npm run dev process : stop !
+#in same prompt above
+ /kickstartSec6$ npm install --save semantic-ui-react
+#web browser : https://react.semantic-ui.com
+-- CSS need to be more awesome
+ /kickstartSec6$ npm install --save semantic-ui-css
+ # add import 'semantic-ui-css/semantic.min.css';
+17. Card component for list of differenct box- Card.Group
+18.  /kickstartSec6$  npm run dev (restart)
+#localhost:3000 -> just text output instead of semantic-ui
+##gotcha: need to include stylesheet:
+1)
+render() {
+  return <div>
+   <link rel="stylesheet"
+   href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.12/semantic.min.css"
+   />
+   {this.renderCampaigns()}
+   </div>;
+}
+
+20. header everywhere !
+label("Open Campaigns")
+#once make single header component, use everywhere
+- components/Layout.js : house very common components
+### structure ##
+header
+(layout-wrapper)
+.. components(inside of layout component)
+   campaigns list shd be a child of Layout ..
+(layout-wrapper)
+footer
+#####
+-- kill node process :
+##after Layout1.js and Layout.js made, then $ npm run dev
+- error : Port 3000 is already in use.
+##So kill Port by asf:
+$ killall -KILL node
+#then  $npm run dev
+21. header (logo on the left two button on the right)
+22. react.semantic-ui.comm
+left/Elements/Container : limits content to a mix width
+1)in Layout.js , replace <div></div> with <Container></Container>
+,makes box width reduced to be aligned
+2) <link rel="stylesheet" href-".." /> in Layout.js
+affect all pages.
+23. custom margin for header & CreateCampaign on the right
+24. navigation other page
+-show.js
+25. new.js (import factory from '../../ethereum/factory';)
+1)initialize state with state={minimumContribution:''};
+2)hen changing event happened, event set this state of
+minimumContribution to be event.taget.value
+<input
+label-"wei"
+labelPosition="right"
+value={this.state.minimumContribution}
+onChange={ event =>
+  this.setState({minimumContribution: event.target.value})
+/>
+}
+3)MetaMastk auto calculate gas( import web3 from '...';)
+ onSubmit = async (event) => {
+    await factory.methods
+      .createCampaign(this.state.minimumContribution)
+      .send({
+        from: accounts[0]
+      });
+}
+4) when input alphabet(invalid ) -> check and error msg injected
+using 'try catch'
+try {
+ //above 2 phrases
+}catch(err) {
+this.setState({errorMessage: err.message})
+}
+5) error msg UI : semantic UI does not show errorMessage
+by default. -> need gotcha to show error message:
+#error in <Form property>
+-> <Form onSubmit={this.onSubmit} error > : err window pop up
+-> solution for above:
+<Form onSubmit={this.onSubmit} error={this.state.errorMessage} >
+#state={.., errorMessage: ''}
+first, this.state.errorMessage is empty string , regarded as false
+so, no error window shown. but error occured , translated as true
+so, error windows pop up.
+6) error={this.state.errorMessage} , which is string
+but need to convert to boolean ->
+!!this.state.errorMessage
+7) loading/processing/spinnig button :
+Semantic UI page: left panel -/States/Loading
+#need new property in state={ ..., loading: false }; for spinning
+----start of spinning---
+this.setState({ loading: true});
+try{
+}catch (err){
+}
+this.setState({loading: false});
+----end of spinning-----
+<Button loading={this.state.loading} primary>Create!</Button>
+8) once pop up winow with error msg, still exits
+even try another campaign create.
+-> this.setState({loading: true , errorMessage: ''});
+
+26 navigation to next.js:
+when create new campaign, need to route to root page(index.js)
+to check campaigns made. :
+1) problem: variable(address of campaign,token) is (url path)
+but No js file name with this token, which
+next.js not support, so dynamic routing not supported by default
+-> need helper module: next-routes
+1)..kickstartsec6 $ npm install --save next-routes
+2)create routes.js inside project
+3) svr setup : server.js
+27. package.json -> "dev" : "node server.js "
+28. stopping "npm run dev process"
+killall -KILL node
+then kickstartsec6$ npm run dev
+which shows... node server.js
+29. new.js import { Link, Router } from '../../routes'
+30.
+1)Header.js
+<Link route="/">
+  <a className="item">CrowdCoin</a>
+</Link>
+<Link route="/campaigns/new">
+  <a className="item">+</a>
+</Link>
+2)in index.js
+#<Link route={`/campaigns/${address}`}>
+<Link route="/campaigns/new">
+#<Link route="/campaigns/new">
+  <a><Button .../></a>
+</Link>
+3) in routes.js
+routes.add('/campaigns/:address','/campaigns/show');
+31. restart svr process asf:
+killall -KILL node
+then kickstartsec6$ npm run dev
+31. in show.js getSummary func(on sinble call) to
+show 4 seperated details of campaigns : faster !
+-> update contract & redeploy
+#Campaign.sol, stop svr , restart svr(npm run dev),
+#change dir to ethereum, manually compile compile.js, run deploy.js
+...kickstartsec6/ethereum $ node compile.js (delete build folder,
+recompile, rewrite)
+...kickstartsec6/ethereum $ node deploy.js
+Contract deployed to 0x063A5c4fc76B01C47Bd6145641d01595706557aF
+32....kickstartsec6 $ npm run dev
+33. reroute to reflect changed campaign Details
+-In new.js: instead of "Router.pushRoute('/');""
+-> In contributeForm re-freshing perticular addr.
+: Router.replaceRoute(`/campaigns/${this.props.address}`)
+, which is current campaign we are looking at.
+- this.setState({loading: true, errorMessage:''});
+when loading new page , error message initialized to blank.
+... this.setState({loading: false, value: ''});
+34. after /requests/index.js
+need stop(ctrl+c) then restart(npm run dev) one more time.. !!
+35. create request in webbrowser-> account2 in Metamask copy
+and pasted in webbrowser and then changed to account1 in MetaMask
+then click create ! button below.
+36. solidity not support array of struct(array that Contain struct
+ inside in it) -> hard to implement to fetch all of requests
+ with one single call, instead fetching request one by one
+ upto total number of request.
+37. Request Row Component to make row detail
+and Approve, Filalize clickable modules
+1) make ref in Camapaign.sol -
+struct Request {
+string description;
+uint value;
+address recipient;
+bool complete;
+uint approvalCount;
+mapping(address => bool) approvals;
+}
+2) index.js in requests dir
+renderRow() {
+  return this.props.requests.map((request, index) => {
+    return (
+      <RequestRow
+      key = {index}
+      id = {index}
+      request = {request}
+      address = {this.props.address}
+      approversCount = {this.props.approversCount}
+      />
+    );
+  });
+}
+
+#Using const {id , request } = this.props
+# so, instead of this.props.id, id is OK.
+-In requestRow, use index.js in requests dir
+38. in RequestRow, <Button onClick={this.onApprove}> :
+there is no () such as "onApprove()", which is not
+invoke the function right away.
+39. when Approve clicked , Metamask says insufficient
+gas means func probaply fail, You, not donated Campaign
+yet.
+#<Button style={{ margineBottom : 10}}
+- one { jsx , another { for object

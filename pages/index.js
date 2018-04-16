@@ -1,0 +1,71 @@
+import React, { Component }from 'react';
+import { Card, Button } from 'semantic-ui-react';
+import factory from '../ethereum/factory';
+import Layout from '../components/Layout';
+import { Link } from '../routes';
+
+/*functional component */
+// export default () => {
+//   return <h1>This is new campaign list page !!!</h1> ;
+// };
+
+/* class based component:make use of life cycle method
+ ,componentDidMount, which is greate place load
+ up data inside of react component, then reder out
+ to the user.so can see the contens in the screen*/
+ /*option 1 : componentDidMount()*/
+/*class CampaignIndex extends Component {
+  async componentDidMount() {
+    const campaigns = await factory.methods.getDeployedCampaigns().call();
+    console.log(campaigns);
+  } */
+/* option2: next.js with sever side rendering
+getInitialProps()*/
+class CampaignIndex extends Component {
+  static async getInitialProps() { //CampaignIndex.getInitialProps()
+    const campaigns = await factory.methods.getDeployedCampaigns().call();
+    //return {campaigns: campaigns}; //same below
+    return {campaigns};
+  }
+  //helper method
+  renderCampaigns() {
+    const items = this.props.campaigns.map(address => {
+      return {
+        header: address,
+        description: (
+          <Link route={`/campaigns/${address}`}>
+            <a>View Campaign</a>
+          </Link>
+        ),
+        fluid: true
+      };
+    });
+    return <Card.Group items = {items} />
+  }
+  render() {
+    //return <div>Campaigns Index!</div>
+    //return <div>{this.props.campaigns[0]}</div>;  //opt 1
+    // following is opt2
+    return (
+      <Layout>
+        <div>
+          <h3>Open Campaigns </h3>
+
+          <Link route="/campaigns/new">
+            <a>
+              <Button floated = "right"
+                content='Create Campaign'
+                icon='add circle'
+                primary
+              />
+            </a>
+          </Link>
+
+          {this.renderCampaigns()}
+        </div>
+      </Layout>
+    );
+  }
+}
+
+export default CampaignIndex;
